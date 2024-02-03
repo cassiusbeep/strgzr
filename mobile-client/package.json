@@ -22,6 +22,7 @@
     "react-native": "0.73.2",
     "react-native-easy-grid": "^0.2.2",
     "react-native-sensors": "^7.3.6",
+    "react-native-usbserial": "^1.0.1",
     "react-native-web": "~0.19.6"
   },
   "devDependencies": {
