@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, View, Platform } from "react-native";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  DeviceEventEmitter,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
-import { UsbSerial } from "react-native-usbserial";
+import { RNSerialport, actions } from "react-native-usb-serialport";
 
 export default function App() {
   const [location, setLocation] = useState(null);
-  
-  let usbs;
 
   useEffect(() => {
     const watchLocation = async () => {
@@ -18,21 +23,6 @@ export default function App() {
     };
 
     watchLocation();
-
-    if (Platform.OS === "android") {
-      usbs = new UsbSerial();
-      const getDevice = async () => {
-        const deviceList = await usbs.getDeviceListAsync();
-        const firstDevice = deviceList[0];
-        console.log(firstDevice);
-
-        if (firstDevice) {
-          const usbSerialDevice = await usbs.openDeviceAsync(firstDevice);
-          console.log(usbSerialDevice);
-        }
-      };
-      getDevice();
-    }
   }, []);
 
   return (
