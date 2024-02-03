@@ -1,17 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View } from 'react-native';
-import { useEffect, useState } from 'react';
-import * as Location from 'expo-location';
+import { useEffect, useState } from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import * as Location from "expo-location";
 
 export default function App() {
-  const [heading, setHeading] = useState("")
+  const [location, setLocation] = useState(null);
 
   useEffect(() => {
-    Location.getHeadingAsync().then((e) => setHeading(e.magHeading))
-  }, [heading]);
+    (async () => {
+      await Location.requestForegroundPermissionsAsync();
+      Location.watchHeadingAsync((location) => {
+        setLocation(location);
+      });
+    })();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text>Compass heading: {heading}</Text> 
+      <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
     </View>
   );
 }
@@ -19,8 +25,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
