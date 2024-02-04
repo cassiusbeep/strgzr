@@ -263,9 +263,6 @@ export default function App() {
         <Text style={{ color: "white" }}>
           Compass heading: {Math.round(location?.trueHeading)}°
         </Text>
-        <Text style={{ color: "white" }}>
-          NOW VIEWING: {typeof currentPlanet == String ? currentPlanet : ""}
-        </Text>
         <Pressable
           onPress={() => {
             // sendDirections(resetDirs);
@@ -342,5 +339,5 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: "#461C71",
     color: "#fff",
-  },
+  }
 });
