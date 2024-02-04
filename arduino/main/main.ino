@@ -50,20 +50,17 @@ void loop() {
         mvmtString[message_pos];
         Serial.println(mvmtString);
         message_pos = 0;
-        break; //breaks out of capture loop to print the read string
-      }
-      mvmtString.concat(c); 
+        if (mvmtString.length() > 0) {
+        // split string into X and Y arguments
+        int separator = mvmtString.indexOf(",");
+        int xSteps = mvmtString.substring(0, separator).toInt();
+        int ySteps = mvmtString.substring(separator + 1, mvmtString.length() - 1).toInt();
+        // send X and Y to steppers
+        stepperX.step(xSteps);
+        stepperY.step(ySteps);
+        Serial.write(1); // confirm orientation complete
     }
-    Serial.println(mvmtString);
-    if (mvmtString.length() > 0) {
-      // split string into X and Y arguments
-      int separator = mvmtString.indexOf(",");
-      int xSteps = mvmtString.substring(0, separator).toInt();
-      int ySteps = mvmtString.substring(separator + 1, mvmtString.length() - 1).toInt();
-      // send X and Y to steppers
-      stepperX.step(xSteps);
-      stepperY.step(ySteps);
-      Serial.write(1); // confirm orientation complete
+      }
     }
   }
   //   if (mvmtString.length() > 0) {
