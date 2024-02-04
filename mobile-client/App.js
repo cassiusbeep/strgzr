@@ -3,6 +3,8 @@ import { Button, StyleSheet, Text, View, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
 import { UsbSerial } from "react-native-usbserial";
+import {NavigationContainer} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 export default function App() {
   const [location, setLocation] = useState(null);
@@ -35,10 +37,40 @@ export default function App() {
     }
   }, []);
 
+  const Stack = createNativeStackNavigator();
+
+  const HomeScreen = 
+  <View style={styles.container}>
+    <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
+  </View>
+
+  // const CameraScreen = 
+  // <View style={styles.container}>
+  //   <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
+  // </View>
+
+  // const DockHome = 
+  //   <View style={styles.container}>
+  //     <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
+  // </View>
+
   return (
-    <View style={styles.container}>
-      <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+        />
+        {/* <Stack.Screen
+          name="Camera"
+          component={CameraScreen}
+        />
+        <Stack.Screen
+          name="Dock Home"
+          component={DockHome}
+        /> */}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
