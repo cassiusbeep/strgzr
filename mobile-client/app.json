@@ -7,7 +7,16 @@
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
       ]
-    ]
+    ],
+    "android": {
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.CAMERA"
+      ],
+      "package": "com.anonymous.strgzr"
+    }
   },
   "name": "strgzr",
   "slug": "strgzr",
@@ -20,13 +29,17 @@
     "resizeMode": "contain",
     "backgroundColor": "#ffffff"
   },
-  "assetBundlePatterns": ["**/*"],
+  "assetBundlePatterns": [
+    "**/*"
+  ],
   "ios": {
     "supportsTablet": true,
     "bundleIdentifier": "com.anonymous.strgzr"
   },
   "android": {
-    "permissions": ["ACCESS_COARSE_LOCATION"],
+    "permissions": [
+      "ACCESS_COARSE_LOCATION"
+    ],
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
       "backgroundColor": "#ffffff"

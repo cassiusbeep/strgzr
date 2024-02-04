@@ -23,6 +23,7 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0) {
+    Seral.print("STRGZR");
     String mvmtString = Serial.readString(); // read input from USB
     if (mvmtString.startsWith("$")) { // check if signed correctly
       Serial.println("starts with $");
