@@ -37,42 +37,34 @@ void loop() {
   // }
 
   if (Serial.available() > 0) {
+    char read_byte = Serial.read();
+
+    char* mvmtBytes[12];
+    int pos = 0;
 
     while (Serial.available() > 0) { // read the incoming byte:
-      static char mvmtString[8];
-      static unsigned int message_pos = 0;
+      delay(10);  //small delay to allow input buffer to fill
       char c = Serial.read();  //gets one byte from serial buffer
-
-      if (c != '!' && (message_pos < 7)) {
-        mvmtString[message_pos] = c;
-        message_pos++;
+      
+      if (c == '!' && (pos < 11)) {
+        if (pos > 0) {
+          String mvmtString(*mvmtBytes);
+          int separator = mvmtString.indexOf(",");
+          int xSteps = mvmtString.substring(0,separator).toInt();
+          int ySteps = mvmtString.substring(separator + 1).toInt();
+          stepperX.step(xSteps);
+          stepperY.step(ySteps);
+          mvmtString=""; //clears variable for new input
+          pos = 0;
+        } //breaks out of capture loop to print readstring
       } else {
-        mvmtString[message_pos];
-        Serial.println(mvmtString);
-        message_pos = 0;
-        if (mvmtString.length() > 0) {
-        // split string into X and Y arguments
-        int separator = mvmtString.indexOf(",");
-        int xSteps = mvmtString.substring(0, separator).toInt();
-        int ySteps = mvmtString.substring(separator + 1, mvmtString.length() - 1).toInt();
-        // send X and Y to steppers
-        stepperX.step(xSteps);
-        stepperY.step(ySteps);
-        Serial.write(1); // confirm orientation complete
-    }
+        mvmtBytes[pos] = c;
+        pos++;
       }
-    }
+      
+    } 
   }
-  //   if (mvmtString.length() > 0) {
-  //     Serial1.print(mvmtString);
-  //     int separator = mvmtString.indexOf(",");
-  //     int xSteps = mvmtString.substring(0,separator).toInt();
-  //     int ySteps = mvmtString.substring(separator + 1).toInt();
-  //     stepperX.step(xSteps);
-  //     stepperY.step(ySteps);
-  //     Serial1.print("Done\n");
-  //     mvmtString=""; //clears variable for new input
-  //   }
+    
     
   // } 
 }
