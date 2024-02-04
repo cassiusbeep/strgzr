@@ -92,7 +92,7 @@ def closest_planet():
     ]
     ts = load.timescale()
     t = ts.now()
-
+    
     earth = planets["earth"]
 
     boston = earth + wgs84.latlon(latitude * N, longitude * W)
