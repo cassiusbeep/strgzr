@@ -6,8 +6,39 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "neverForLocation": true,
+          "modes": [
+            "peripheral",
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to bluetooth devices"
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "792a94ef-283f-46d6-bc39-058f7ffab263"
+      }
+    },
+    "android": {
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "package": "com.aaronang.strgzr"
+    },
+    "ios": {
+      "bundleIdentifier": "com.aaronang.strgzr"
+    }
   },
   "name": "strgzr",
   "slug": "strgzr",
@@ -20,13 +51,17 @@
     "resizeMode": "contain",
     "backgroundColor": "#ffffff"
   },
-  "assetBundlePatterns": ["**/*"],
+  "assetBundlePatterns": [
+    "**/*"
+  ],
   "ios": {
     "supportsTablet": true,
     "bundleIdentifier": "com.anonymous.strgzr"
   },
   "android": {
-    "permissions": ["ACCESS_COARSE_LOCATION"],
+    "permissions": [
+      "ACCESS_COARSE_LOCATION"
+    ],
     "adaptiveIcon": {
       "foregroundImage": "./assets/adaptive-icon.png",
       "backgroundColor": "#ffffff"

@@ -1,4 +1,4 @@
-package com.anonymous.strgzr
+package com.aaronang.strgzr
 
 import android.os.Build
 import android.os.Bundle
