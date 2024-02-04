@@ -4,12 +4,12 @@ import { Button, StyleSheet, Text, View, Platform, FlatList } from "react-native
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
 import { UsbSerial } from "react-native-usbserial";
-import {NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import axios from 'axios';
 
 export default function App() {
-  
+
   const [usbConnected, setUsbConnected] = useState(false);
   const Stack = createNativeStackNavigator();
   const [location, setLocation] = useState(null);
@@ -18,15 +18,16 @@ export default function App() {
   const [azimuth, setAzimuth] = useState(null);
   const [altitude, setAltitude] = useState(null);
 
-  const getDirections = async (long, lat, planet) => {
-    console.log(long);
-    console.log(lat);
-    console.log(planet);
-    
-    axios.get('http://server.milesacq.com:7892/calculate_distance', 
-      {longitude: long,
-      latitude: lat,
-      planet: planet}
+  const getDirections = (long, lat, planet) => {
+    axios.get('http://server.milesacq.com:7892/calculate_distance',
+      {
+        params: {
+          longitude: long,
+          latitude: lat,
+          planet: planet,
+          heading: location
+        }
+      }
     ).then((response) => {
       setAzimuth(response.data.Azimuth);
       setAltitude(response.data.Altitude);
@@ -35,18 +36,28 @@ export default function App() {
     })
   }
 
-  const getPlanets = (long, lat, direction) => {
-    planetRouter.get(
-      "http://server.milesacq.com:7892/closest_planet", {
+  const sendDirections = (dirxns) => {
+    axios.post('http://server.milesacq.com:7892/move_servos',
+      {
         params: {
-          longitude,
-          latitude,
-          direction
+          dirString: dirxns
         }
       }
     )
   }
-  
+
+  // const getPlanets = (long, lat, direction) => {
+  //   planetRouter.get(
+  //     "http://server.milesacq.com:7892/closest_planet", {
+  //     params: {
+  //       longitude,
+  //       latitude,
+  //       direction
+  //     }
+  //   }
+  //   )
+  // }
+
   let usbs;
 
   useEffect(() => {
@@ -85,26 +96,7 @@ export default function App() {
     }
   }, []);
 
-  useEffect(() => {
-
-  })
-
-  const BODIES = [
-    {
-      id: '1',
-      title: 'Venus',
-    },
-    {
-      id: '2',
-      title: 'Jupiter',
-    },
-    {
-      id: '3',
-      title: 'Mars',
-    },
-  ];
-
-  function HomeScreen({ navigation }) { 
+  function HomeScreen({ navigation }) {
     useEffect(() => {
       if (usbConnected && usbs) {
         navigation.navigate('Dock')
@@ -116,44 +108,39 @@ export default function App() {
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
         <Text>Place phone in telescope dock!</Text>
         <Button onPress={() => {
-          navigation.navigate('Dock')}} title={"Search the Stars"}></Button>
+          navigation.navigate('Dock')
+        }} title={"Search the Stars"}></Button>
       </View>
     );
   }
 
-  function moveArm({navigation, planetName}) {
+  function moveArm(navigation, planetName) {
     console.log(planetName);
     console.log('move arm');
-    getDirections(long, lat, planetName).then(() => {
-      // work out number of 5.625° steps to take to point there
-      if (altitude < 0 || altitude > 90) {
-        console.log(planetName + " not visible");
-        // dont move the arm!
-      } else {
-        // TODO: check if this is appropriate calibration to turn the middle wheel
-        const xSteps = Math.round(((azimuth - location?.trueHeading)/5.625)*0.5);
-        const ySteps = Math.round(altitude/5.625);
-        const dirString = xSteps + "," + ySteps;
-        console.log("direction string: ")
-        console.log(dirString);
-        // TODO: send new azimuth and altitude to the arduino
-        navigation.navigate('TelescopeScreen');
-      }
-    }, (error) => {
-      console.error(error)
-    });
+    getDirections(long, lat, planetName)
+    // work out number of 5.625° steps to take to point there
+    if (altitude < 0 || altitude > 90) {
+      console.log(planetName + " not visible"); // dont move the arm!
+    } else {
+      // TODO: check if this is appropriate calibration to turn the middle wheel
+      const xSteps = Math.round(((azimuth - location?.trueHeading) / 5.625) * 0.5);
+      const ySteps = Math.round(altitude / 5.625);
+      const dirString = xSteps + "," + ySteps;
+      // send arduino direction string to the server to be passed into usb serial port
+      sendDirections(dirString);
+      navigation.push('Telescope');
+    }
   }
 
-  function DockScreen({navigation}) { 
+  function DockScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
         <Button title={"sun"} onPress={(event) => moveArm(navigation, "sun")}></Button>
         <Button title={"mars"} onPress={(event) => moveArm(navigation, "mars")}></Button>
-        <Button title={"jupiter"} onPress={(event) => moveArm(navigation, "jupiter")}></Button>
         <Button title={"moon"} onPress={(event) => moveArm(navigation, "moon")}></Button>
-        <Button onPress={() => {navigation.goBack()}} title={"back"}></Button>
-        
+        <Button onPress={() => { navigation.goBack() }} title={"back"}></Button>
+
         {/* <SafeAreaView style={styles.container}>
           <FlatList
             data={BODIES}
@@ -170,11 +157,11 @@ export default function App() {
     );
   }
 
-  function TelescopeScreen({planet, navigation}) { 
+  function TelescopeScreen({ planet, navigation }) {
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-
+        <Text>telescope screen</Text>
       </View>
     );
   }
