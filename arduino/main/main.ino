@@ -23,13 +23,8 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0) {
-    Seral.print("STRGZR");
+    Seral.write(1);
     String mvmtString = Serial.readString(); // read input from USB
-    if (mvmtString.startsWith("$")) { // check if signed correctly
-      Serial.println("starts with $");
-    } else {
-      Serial.println("does not start with $");
-    }
     Serial.print(mvmtString); // print received string to USB
     // split string into X and Y arguments
     int separator = mvmtString.indexOf(",");
@@ -38,7 +33,7 @@ void loop() {
     // send X and Y to steppers
     stepperX.step(xSteps);
     stepperY.step(ySteps);
-    Serial.print("Done\n"); // confirm orientation complete
+    Serial.write(1); // confirm orientation complete
   } 
 
   // if (Serial1.available() > 0) {

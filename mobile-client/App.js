@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, View, Platform, FlatList } from "react-native";
+import { Pressable, Button, StyleSheet, Text, View, Platform, FlatList, SafeAreaView, Modal } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
 import { UsbSerial } from "react-native-usbserial";
@@ -17,6 +17,9 @@ export default function App() {
   const [lat, setLat] = useState(null);
   const [azimuth, setAzimuth] = useState(null);
   const [altitude, setAltitude] = useState(null);
+  const [lastDirs, setLastDirs] = useState(null);
+  const [currentPlanet, setCurrentPlanet] = useState(null);
+  const [invisErrorOpen, setInvisErrorOpen] = useState(false);
 
   const getDirections = (long, lat, planet) => {
     axios.get('http://server.milesacq.com:7892/calculate_distance',
@@ -37,6 +40,7 @@ export default function App() {
   }
 
   const sendDirections = (dirxns) => {
+    console.log(dirxns);
     axios.post('http://server.milesacq.com:7892/move_servos',
       {
         params: {
@@ -107,17 +111,17 @@ export default function App() {
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
         <Text>Place phone in telescope dock!</Text>
-        <Button onPress={() => {
+        <Pressable onPress={() => {
           navigation.navigate('Dock')
-        }} title={"Search the Stars"}></Button>
+        }}
+        style={styles.button}><Text style={styles.buttonText}>Search the Stars</Text></Pressable>
       </View>
     );
   }
 
   function moveArm(navigation, planetName) {
-    console.log(planetName);
-    console.log('move arm');
-    getDirections(long, lat, planetName)
+    setCurrentPlanet(planetName);
+    getDirections(long, lat, planetName);
     // work out number of 5.625° steps to take to point there
     if (altitude < 0 || altitude > 90) {
       console.log(planetName + " not visible"); // dont move the arm!
@@ -128,47 +132,108 @@ export default function App() {
       const dirString = xSteps + "," + ySteps;
       // send arduino direction string to the server to be passed into usb serial port
       sendDirections(dirString);
+      setLastDirs(dirString);
+      console.log(currentPlanet)
       navigation.push('Telescope');
     }
   }
 
+  BODIES = [
+    {
+      id: '10',
+      title: 'sun',
+    },
+    {
+      id: '199',
+      title: 'mercury',
+    },
+    {
+      id: '399',
+      title: 'earth',
+    },
+    {
+      id: '299',
+      title: 'venus',
+    },
+    {
+      id: '301',
+      title: 'moon',
+    },
+    {
+      id: '499',
+      title: 'mars',
+    },
+  ]
+
+  const Item = ({navigation, title}) => (
+    <View style={styles.item}>
+      <Pressable onPress={(title) => moveArm(navigation, title)} style={styles.button}><Text style={styles.buttonText}>{title}</Text></Pressable>
+    </View>
+  );
+
   function DockScreen({ navigation }) {
     return (
       <View style={styles.container}>
-        <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-        <Button title={"sun"} onPress={(event) => moveArm(navigation, "sun")}></Button>
-        <Button title={"mars"} onPress={(event) => moveArm(navigation, "mars")}></Button>
-        <Button title={"moon"} onPress={(event) => moveArm(navigation, "moon")}></Button>
-        <Button onPress={() => { navigation.goBack() }} title={"back"}></Button>
+        <Text style={{marginTop: '160px'}}>Compass heading: {Math.round(location?.trueHeading)}°</Text>
 
-        {/* <SafeAreaView style={styles.container}>
+        <Pressable 
+          onPress={() => { navigation.goBack() }} 
+          title={"back"} 
+          style={styles.button}>
+          <Text style={styles.buttonText}>back</Text>
+        </Pressable>
+
+        <Modal
+        animationType='slide'
+        transparent={false}
+        visible={invisErrorOpen}
+        onRequestClose={() => {
+          setInvisErrorOpen(false);
+        }}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Planet is not visible!</Text>
+            <Pressable onPress={() => setInvisErrorOpen(!invisErrorOpen)} style={styles.button}>
+              <Text style={styles.buttonText}>close</Text>
+            </Pressable>
+          </View>
+        </Modal>
+        <SafeAreaView style={styles.container}>
           <FlatList
             data={BODIES}
-            renderItem={({id, title}) => 
-                {return (
-                  <View style={styles.container}>
-                    <Button onPress={(title) => moveArm(navigation, title)} title={title}></Button>
-                  </View>)
-                }}
+            renderItem={({item}) => <Item navigation={navigation} title={item.title}/>}
             keyExtractor={item => item.id}
-          />
-        </SafeAreaView> */}
+            />
+        </SafeAreaView>
       </View>
     );
   }
 
-  function TelescopeScreen({ planet, navigation }) {
+  function TelescopeScreen({ navigation }) {
+    // find the opposite of the directions it took to orient here for the exit
+    lastXStep = lastDirs.split(",")[0];
+    lastYStep = lastDirs.split(",")[1];
+    const resetDirs = (-1 * lastXStep) + "," + (-1 * lastYStep);
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-        <Text>telescope screen</Text>
+        <Text>NOW VIEWING: {typeof currentPlanet == String ? currentPlanet : ""}</Text>
+        <Pressable onPress={() => {
+          sendDirections(resetDirs);
+          setCurrentPlanet(null);
+          navigation.goBack();}}
+          style={styles.button}><Text style={styles.buttonText}>back</Text></Pressable>
       </View>
     );
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator 
+        initialRouteName="Home"
+        screenOptions={{
+          headerTransparent: true,
+          headerBlurEffect: 'systemChromeMaterialLight'
+        }}>
         <Stack.Screen
           name="Home"
           component={HomeScreen}
@@ -192,9 +257,35 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    display: 'flex',
+    backgroundColor: "#592A88",
     alignItems: "center",
     justifyContent: "center",
-    width: '100%'
+    width: '100%',
+    color: '#fff',
+    marginTop: '125px',
+  },
+  item: {
+    backgroundColor: '#592A88',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    color: '#fff',
+  },
+  title: {
+    fontSize: 32,
+    color: '#fff',
+  },
+  buttonText: {
+    fontSize: 20,
+    color: '#fff',
+    textAlign: 'center',
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    backgroundColor: '#461C71',
+    color: '#fff',
   },
 });
