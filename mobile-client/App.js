@@ -31,12 +31,12 @@ export default function App() {
     if (Platform.OS === "android") {
       usbs = new UsbSerial();
       const getDevice = async () => {
-        const deviceList = await usbs.getDeviceListAsync();
+        const deviceList = await usbs?.getDeviceListAsync();
         const firstDevice = deviceList[0];
         console.log(firstDevice);
 
         if (firstDevice) {
-          const usbSerialDevice = await usbs.openDeviceAsync(firstDevice);
+          const usbSerialDevice = await usbs?.openDeviceAsync(firstDevice);
           setUsbConnected(true);
           console.log(usbSerialDevice);
         }
