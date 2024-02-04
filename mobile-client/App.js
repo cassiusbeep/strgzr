@@ -20,26 +20,39 @@ export default function App() {
 
   const getDirections = async (long, lat, planet) => {
     console.log('checkpoint 1');
-    axios.get('http://server.milesacq.com:7892/calculate_distance', 
-    {longitude: long,
-      latitude: lat,
-      planet: planet})
-    /*axios({
+    console.log(long);
+    console.log(lat);
+    console.log(planet);
+
+    let config = {
       method: 'get',
-      url: 'http://server.milesacq.com:7892/calculate_distance', 
-      params: 
-        {
-          longitude: long,
-          latitude: lat,
-          planet: planet
-        },
-    })*/.then((response) => {
-      console.log('checkpoint 2');
-      setAzimuth(response.data.Azimuth);
-      setAltitude(response.data.Altitude);
-    }, (error) => {
-      console.log(error);
+      maxBodyLength: Infinity,
+      url: 'http://server.milesacq.com:7892/calculate_distance?longitude=300&latitude=250&planet=sun',
+      headers: { }
+    };
+
+    console.log('config done');
+    
+    axios.request(config)
+    .then((response) => {
+      console.log('req sent');
+      console.log(JSON.stringify(response.data));
     })
+    .catch((error) => {
+      console.log(error);
+    });
+    
+    // axios.get('http://server.milesacq.com:7892/calculate_distance', 
+    // {longitude: long,
+    //   latitude: lat,
+    //   planet: planet}).then((response) => {
+    //   console.log('checkpoint 2');
+    //   setAzimuth(response.data.Azimuth);
+    //   setAltitude(response.data.Altitude);
+    // }, (error) => {
+    //   console.log(error);
+    //   console.loc('checkpoint 3');
+    // })
   }
 
   const getPlanets = (long, lat, direction) => {
@@ -131,7 +144,7 @@ export default function App() {
   function moveArm({navigation, planetName}) {
     console.log('move arm');
     getDirections(long, lat, planetName).then(() => {
-      console.log('inside get directions');
+      console.log('checkpoint 4');
       // work out number of 5.625° steps to take to point there
       if (altitude < 0 || altitude > 90) {
         console.log(planetName + "not visible");
