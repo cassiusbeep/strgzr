@@ -6,6 +6,17 @@ import { UsbSerial } from "react-native-usbserial";
 import {NavigationContainer} from '@react-navigation/native-stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+
+function HomeScreen() { 
+  return (
+    <View style={styles.container}>
+      <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
+    </View>
+  );
+}
+
+const Stack = createNativeStackNavigator();
+
 export default function App() {
   const [location, setLocation] = useState(null);
   
@@ -37,38 +48,13 @@ export default function App() {
     }
   }, []);
 
-  const Stack = createNativeStackNavigator();
-
-  const HomeScreen = 
-  <View style={styles.container}>
-    <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-  </View>
-
-  // const CameraScreen = 
-  // <View style={styles.container}>
-  //   <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-  // </View>
-
-  // const DockHome = 
-  //   <View style={styles.container}>
-  //     <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-  // </View>
-
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="Home">
         <Stack.Screen
           name="Home"
           component={HomeScreen}
         />
-        {/* <Stack.Screen
-          name="Camera"
-          component={CameraScreen}
-        />
-        <Stack.Screen
-          name="Dock Home"
-          component={DockHome}
-        /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );
