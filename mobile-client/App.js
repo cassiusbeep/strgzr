@@ -38,15 +38,19 @@ export default function App() {
         <Text>Place phone in telescope dock!</Text>
         <Button
           onPress={async () => {
-            serialPort = await SerialPortAPI.open("/dev/ttyS4", {
-              baudRate: 9600,
-            });
-            console.log("Connected to serial port");
+            try {
+              serialPort = await SerialPortAPI.open("/dev/ttyS4", {
+                baudRate: 9600,
+              });
+              console.log("Connected to serial port");
 
-            serialPort.onReceived((buff) => {
-              console.log(buff.toString("hex").toUpperCase());
-            });
-            setUsbConnected(true);
+              serialPort.onReceived((buff) => {
+                console.log(buff.toString("hex").toUpperCase());
+              });
+              setUsbConnected(true);
+            } catch (e) {
+              console.error(e);
+            }
           }}
           title="Connect to telescope"
         ></Button>
