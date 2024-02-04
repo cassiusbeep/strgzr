@@ -1,16 +1,28 @@
 "use client";
-import { use, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export default function Home() {
-  const handleConnection = async (e) => {
-    // const res = axios.get("http://localhost:3000/api/arduino");
+  const [move, setMove] = useState("");
 
-    const data = new TextEncoder().encode("500,500");
-    console.log(data);
+  const handleConnection = async (e) => {
+    const res = await axios.get(
+      "http://server.milesacq.com:7892/get_servo_data"
+    );
+
+    let data;
+    if (res.status === 200) {
+      data = res.data;
+    } else {
+      data = "100,100!";
+    }
+    setMove(data.substring(0, data.length - 1));
+
+    const dataByte = new TextEncoder().encode(data);
+    console.log(dataByte);
     const port = await navigator.serial.requestPort({
       filters: [{ usbVendorId: 0x2341 }],
     });
@@ -22,11 +34,11 @@ export default function Home() {
       await port.setSignals({ dataTerminalReady: true, requestToSend: true });
 
       const writer = port.writable.getWriter();
-      await writer.write(data);
+      await writer.write(dataByte);
       writer.releaseLock();
       console.log("Data written!");
 
-      await sleep(500);
+      // await sleep(500);
 
       // const reader = port.readable.getReader();
       // const { value } = await reader.read();
@@ -50,6 +62,7 @@ export default function Home() {
           Sync with Arduino
         </button>
       </div>
+      {move && <h1>Arduino instructions: {move}</h1>}
     </main>
   );
 }
