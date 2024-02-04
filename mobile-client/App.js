@@ -122,9 +122,9 @@ export default function App() {
     setCurrentPlanet(planetName);
     getDirections(long, lat, planetName);
     // work out number of 5.625° steps to take to point there
-    if (altitude < 0 || altitude > 90) {
-      console.log(planetName + " not visible"); // dont move the arm!
-    } else {
+    // if (altitude < 0 || altitude > 90) {
+    //   console.log(planetName + " not visible"); // dont move the arm!
+    // } else {
       // TODO: check if this is appropriate calibration to turn the middle wheel
       const xSteps = Math.round(((azimuth - location?.trueHeading) / 5.625) * 0.5);
       const ySteps = Math.round(altitude / 5.625);
@@ -133,7 +133,7 @@ export default function App() {
       sendDirections(dirString);
       setLastDirs(dirString);
       navigation.push('Telescope');
-    }
+    // }
   }
 
   BODIES = [
@@ -181,20 +181,20 @@ export default function App() {
           <Text style={styles.buttonText}>back</Text>
         </Pressable>
 
-        <Modal
+        {/* <Modal
         animationType='slide'
         transparent={false}
         visible={invisErrorOpen}
         onRequestClose={() => {
           setInvisErrorOpen(false);
-        }}>
-          <View style={styles.modalView}>
+        }}> */}
+          {/* <View style={styles.modalView}>
             <Text style={styles.modalText}>Planet is not visible!</Text>
             <Pressable onPress={() => setInvisErrorOpen(!invisErrorOpen)} style={styles.button}>
               <Text style={styles.buttonText}>close</Text>
             </Pressable>
-          </View>
-        </Modal>
+          </View> */}
+        {/* </Modal> */}
         <SafeAreaView style={styles.container}>
           <FlatList
             data={BODIES}
@@ -216,7 +216,7 @@ export default function App() {
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
         <Text>NOW VIEWING: {typeof currentPlanet == String ? currentPlanet : ""}</Text>
         <Pressable onPress={() => {
-          sendDirections(resetDirs);
+          // sendDirections(resetDirs);
           setCurrentPlanet(null);
           navigation.goBack();}}
           style={styles.button}><Text style={styles.buttonText}>back</Text></Pressable>
