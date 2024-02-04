@@ -2144,7 +2144,7 @@
     component-type "^1.2.1"
     join-component "^1.1.0"
 
-"@segment/sovran-react-native@^1":
+"@segment/sovran-react-native@^1", "@segment/sovran-react-native@^1.0.4":
   version "1.0.4"
   resolved "https://registry.npmjs.org/@segment/sovran-react-native/-/sovran-react-native-1.0.4.tgz"
   integrity sha512-oeIjspLOX9V+YmM7arZ+OXCyjooKdurnyVji+sj8OVkw+tUcXtvy+m9oC8E4yqazR/tghWCYE+tCriNx4jsVTw==

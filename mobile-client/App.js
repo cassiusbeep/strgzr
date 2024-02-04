@@ -38,8 +38,7 @@ export default function App() {
 
   function HomeScreen({ navigation }) {
     useEffect(() => {
-      DeviceEventEmitter.addListener(
-        Actions.ON_CONNECTED,
+      DeviceEventEmitter.addListener(Actions.ON_CONNECTED, () =>
         setUsbConnected(true)
       );
     }, []);
@@ -59,12 +58,13 @@ export default function App() {
 
   async function DockScreen({ navigation }) {
     useEffect(() => {
-      DeviceEventEmitter.addListener(
-        Actions.ON_DISCONNECTED,
+      DeviceEventEmitter.addListener(Actions.ON_DISCONNECTED, () =>
         setUsbConnected(false)
       );
 
-      DeviceEventEmitter.addListener(Actions.ON_READ_DATA);
+      DeviceEventEmitter.addListener(Actions.ON_READ_DATA, (data) => {
+        console.log(data);
+      });
 
       const send = async (data) => {
         await serialPort.send(data);

@@ -16,6 +16,9 @@
         "android.permission.CAMERA"
       ],
       "package": "com.anonymous.strgzr"
+    },
+    "ios": {
+      "bundleIdentifier": "com.anonymous.strgzr"
     }
   },
   "name": "strgzr",
