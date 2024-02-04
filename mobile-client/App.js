@@ -18,7 +18,7 @@ export default function App() {
   const [azimuth, setAzimuth] = useState(null);
   const [altitude, setAltitude] = useState(null);
   const [lastDirs, setLastDirs] = useState(null);
-  const [currentPlanet, setCurrentPlanet] = useState(null);
+  const [currentPlanet, setCurrentPlanet] = useState("");
   const [invisErrorOpen, setInvisErrorOpen] = useState(false);
 
   const getDirections = (long, lat, planet) => {
@@ -40,7 +40,6 @@ export default function App() {
   }
 
   const sendDirections = (dirxns) => {
-    console.log(dirxns);
     axios.post('http://server.milesacq.com:7892/move_servos',
       {
         params: {
@@ -133,7 +132,6 @@ export default function App() {
       // send arduino direction string to the server to be passed into usb serial port
       sendDirections(dirString);
       setLastDirs(dirString);
-      console.log(currentPlanet)
       navigation.push('Telescope');
     }
   }
@@ -167,7 +165,7 @@ export default function App() {
 
   const Item = ({navigation, title}) => (
     <View style={styles.item}>
-      <Pressable onPress={(title) => moveArm(navigation, title)} style={styles.button}><Text style={styles.buttonText}>{title}</Text></Pressable>
+      <Pressable onPress={() => moveArm(navigation, title)} style={styles.button}><Text style={styles.buttonText}>{title}</Text></Pressable>
     </View>
   );
 
