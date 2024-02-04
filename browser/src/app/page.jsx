@@ -7,7 +7,7 @@ export default function Home() {
   const handleConnection = async (e) => {
     // const res = axios.get("http://localhost:3000/api/arduino");
 
-    const data = new TextEncoder().encode("Hello!");
+    const data = new TextEncoder().encode("Hello" + "!"); // `!` is the delimiter
     const port = await navigator.serial.requestPort({
       filters: [{ usbVendorId: 0x2341 }],
     });
