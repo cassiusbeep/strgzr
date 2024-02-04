@@ -9,7 +9,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import axios from 'axios';
 
 export default function App() {
-
   const [usbConnected, setUsbConnected] = useState(false);
   const Stack = createNativeStackNavigator();
   const [location, setLocation] = useState(null);
