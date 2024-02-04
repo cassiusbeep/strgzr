@@ -127,7 +127,7 @@ export default function App() {
     getDirections(long, lat, planetName).then(() => {
       // work out number of 5.625° steps to take to point there
       if (altitude < 0 || altitude > 90) {
-        console.log(planetName + "not visible");
+        console.log(planetName + " not visible");
         // dont move the arm!
       } else {
         // TODO: check if this is appropriate calibration to turn the middle wheel
@@ -139,6 +139,8 @@ export default function App() {
         // TODO: send new azimuth and altitude to the arduino
         navigation.navigate('TelescopeScreen');
       }
+    }, (error) => {
+      console.error(error)
     });
   }
 
@@ -146,7 +148,10 @@ export default function App() {
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-        <Button title={"sun"} onPress={(event) => moveArm(navigation, "mars")}></Button>
+        <Button title={"sun"} onPress={(event) => moveArm(navigation, "sun")}></Button>
+        <Button title={"mars"} onPress={(event) => moveArm(navigation, "mars")}></Button>
+        <Button title={"jupiter"} onPress={(event) => moveArm(navigation, "jupiter")}></Button>
+        <Button title={"moon"} onPress={(event) => moveArm(navigation, "moon")}></Button>
         <Button onPress={() => {navigation.goBack()}} title={"back"}></Button>
         
         {/* <SafeAreaView style={styles.container}>
