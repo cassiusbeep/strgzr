@@ -22,32 +22,43 @@ void setup() {
 }
 
 void loop() {
+  // if (Serial.available() > 0) {
+  //   Seral.write(1);
+  //   String mvmtString = Serial.readString(); // read input from USB
+  //   Serial.print(mvmtString); // print received string to USB
+  //   // split string into X and Y arguments
+  //   int separator = mvmtString.indexOf(",");
+  //   int xSteps = mvmtString.substring(0, separator).toInt();
+  //   int ySteps = mvmtString.substring(separator + 1, mvmString.length - 1).toInt();
+  //   // send X and Y to steppers
+  //   stepperX.step(xSteps);
+  //   stepperY.step(ySteps);
+  //   Serial.write(1); // confirm orientation complete
+  // }
+
   if (Serial.available() > 0) {
-    Seral.write(1);
-    String mvmtString = Serial.readString(); // read input from USB
-    Serial.print(mvmtString); // print received string to USB
-    // split string into X and Y arguments
-    int separator = mvmtString.indexOf(",");
-    int xSteps = mvmtString.substring(0, separator).toInt();
-    int ySteps = mvmtString.substring(separator + 1).toInt();
-    // send X and Y to steppers
-    stepperX.step(xSteps);
-    stepperY.step(ySteps);
-    Serial.write(1); // confirm orientation complete
-  } 
-
-  // if (Serial1.available() > 0) {
-  //   String mvmtString;
-
-  //   while (Serial1.available()) { // read the incoming byte:
-  //     delay(10);  //small delay to allow input buffer to fill
-  //     char c = Serial1.read();  //gets one byte from serial buffer
-  //     if (c == '!') {
-  //       break; //breaks out of capture loop to print readstring
-  //     } 
-  //     mvmtString.concat(c); 
-  //   } 
-
+    char read_byte = Serial.read();
+    String mvmtString;
+    while (Serial.available() > 0) { // read the incoming byte:
+      delay(10);  //small delay to allow input buffer to fill
+      char c = Serial.read();  //gets one byte from serial buffer
+      if (c == '!') {
+        break; //breaks out of capture loop to print the read string
+      } 
+      mvmtString.concat(c); 
+    }
+    Serial.print(mvmtString);
+    if (mvmtString.length() > 0) {
+      // split string into X and Y arguments
+      int separator = mvmtString.indexOf(",");
+      int xSteps = mvmtString.substring(0, separator).toInt();
+      int ySteps = mvmtString.substring(separator + 1, mvmtString.length() - 1).toInt();
+      // send X and Y to steppers
+      stepperX.step(xSteps);
+      stepperY.step(ySteps);
+      Serial.write(1); // confirm orientation complete
+    }
+  }
   //   if (mvmtString.length() > 0) {
   //     Serial1.print(mvmtString);
   //     int separator = mvmtString.indexOf(",");

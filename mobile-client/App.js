@@ -129,7 +129,7 @@ export default function App() {
       // TODO: check if this is appropriate calibration to turn the middle wheel
       const xSteps = Math.round(((azimuth - location?.trueHeading) / 5.625) * 0.5);
       const ySteps = Math.round(altitude / 5.625);
-      const dirString = xSteps + "," + ySteps;
+      const dirString = xSteps + "," + ySteps + "!";
       // send arduino direction string to the server to be passed into usb serial port
       sendDirections(dirString);
       setLastDirs(dirString);
