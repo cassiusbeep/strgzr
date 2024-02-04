@@ -1,22 +1,18 @@
-import * as React from 'react';
+import * as React from "react";
 import { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, View, Platform } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
-import { UsbSerial } from "react-native-usbserial";
-import {NavigationContainer} from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// import { useNavigation } from '@react-navigation/native/lib/typescript/src';
-
-
+import SerialPortAPI, { SerialPort } from "react-native-serial-port-api";
 
 export default function App() {
-  
   const [usbConnected, setUsbConnected] = useState(false);
-  const Stack = createNativeStackNavigator();
   const [location, setLocation] = useState(null);
-  
-  let usbs;
+  let serialPort: SerialPort;
+
+  const Stack = createNativeStackNavigator();
 
   useEffect(() => {
     const watchLocation = async () => {
@@ -27,50 +23,58 @@ export default function App() {
     };
 
     watchLocation();
-
-    if (Platform.OS === "android") {
-      usbs = new UsbSerial();
-      const getDevice = async () => {
-        const deviceList = await usbs?.getDeviceListAsync();
-        const firstDevice = deviceList[0];
-        console.log(firstDevice);
-
-        if (firstDevice) {
-          const usbSerialDevice = await usbs?.openDeviceAsync(firstDevice);
-          setUsbConnected(true);
-          console.log(usbSerialDevice);
-        }
-      };
-      getDevice();
-    }
   }, []);
 
-
-  function HomeScreen({ navigation }) { 
+  function HomeScreen({ navigation }) {
     useEffect(() => {
-      if (usbConnected && usbs) {
-        navigation.navigate('Dock')
+      if (usbConnected) {
+        navigation.navigate("Dock");
       }
-    }, [usbConnected])
+    }, [usbConnected]);
 
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
         <Text>Place phone in telescope dock!</Text>
+        <Button
+          onPress={async () => {
+            serialPort = await SerialPortAPI.open("/dev/ttyS4", {
+              baudRate: 9600,
+            });
+            console.log("Connected to serial port");
+
+            serialPort.onReceived((buff) => {
+              console.log(buff.toString("hex").toUpperCase());
+            });
+            setUsbConnected(true);
+          }}
+          title="Connect to telescope"
+        ></Button>
       </View>
     );
   }
 
-  function DockScreen({navigation}) { 
+  async function DockScreen({ navigation }) {
+    useState(() => {
+      const send = async (data) => {
+        await serialPort.send(data);
+      };
+      send("Hello");
+    }, []);
+
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-        <Button onPress={() => {navigation.goBack()}}></Button>
+        <Button
+          onPress={() => {
+            navigation.goBack();
+          }}
+        ></Button>
       </View>
     );
   }
 
-  function TelescopeScreen({navigation}) { 
+  function TelescopeScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>

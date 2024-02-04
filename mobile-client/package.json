@@ -27,6 +27,7 @@
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
     "react-native-sensors": "^7.3.6",
+    "react-native-serial-port-api": "^1.5.0",
     "react-native-usbserial": "github:edvijaka/react-native-usbserial",
     "react-native-web": "~0.19.6"
   },
