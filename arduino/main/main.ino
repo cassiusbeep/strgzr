@@ -37,17 +37,24 @@ void loop() {
   // }
 
   if (Serial.available() > 0) {
-    char read_byte = Serial.read();
-    String mvmtString;
+
     while (Serial.available() > 0) { // read the incoming byte:
-      delay(10);  //small delay to allow input buffer to fill
+      static char mvmtString[8];
+      static unsigned int message_pos = 0;
       char c = Serial.read();  //gets one byte from serial buffer
-      if (c == '!') {
+
+      if (c != '!' && (message_pos < 7)) {
+        mvmtString[message_pos] = c;
+        message_pos++;
+      } else {
+        mvmtString[message_pos];
+        Serial.println(mvmtString);
+        message_pos = 0;
         break; //breaks out of capture loop to print the read string
-      } 
+      }
       mvmtString.concat(c); 
     }
-    Serial.print(mvmtString);
+    Serial.println(mvmtString);
     if (mvmtString.length() > 0) {
       // split string into X and Y arguments
       int separator = mvmtString.indexOf(",");
