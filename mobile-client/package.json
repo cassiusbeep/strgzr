@@ -14,7 +14,6 @@
     "@segment/analytics-react-native": "^2.17.0",
     "@segment/sovran-react-native": "^1.0.4",
     "expo": "~50.0.5",
-    "expo-dev-client": "~3.3.8",
     "expo-location": "~16.5.2",
     "expo-status-bar": "~1.11.1",
     "hermes": "^0.4.4",
@@ -22,10 +21,10 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.73.2",
+    "react-native-ble-manager": "^11.2.1",
     "react-native-ble-plx": "^3.1.2",
     "react-native-easy-grid": "^0.2.2",
     "react-native-sensors": "^7.3.6",
-    "react-native-usbserial": "^1.0.1",
     "react-native-web": "~0.19.6"
   },
   "devDependencies": {
