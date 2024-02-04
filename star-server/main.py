@@ -1,12 +1,11 @@
 from skyfield.api import load
 from skyfield.api import N, W, wgs84
 from astropy import units as u
+import sys
 
 from flask import Flask, request
 
 app = Flask(__name__)
-
-planets = load("de421.bsp")
 
 @app.route('/calculate_distance', methods=['GET'])
 def calculate_distance():
@@ -15,7 +14,7 @@ def calculate_distance():
 
     ts = load.timescale()
     t = ts.now()
-
+    planets = load("de421.bsp")
     earth, mars = planets["earth"], planets["mars"]
 
     astrometric = earth.at(t).observe(mars)
@@ -41,29 +40,9 @@ def calculate_distance():
 def closest_planet():
     longitude = float(request.args.get('longitude'))
     latitude = float(request.args.get('latitude'))
-
-    ts = load.timescale()
-    t = ts.now()
-
-    earth, mars = planets["earth"], planets["mars"]
-
-    astrometric = earth.at(t).observe(mars)
-    boston = earth + wgs84.latlon(longitude * N, latitude * W)
-
-    closest = None
-    closest_name = None
-    for planet in planets:
-        astrometric = boston.at(t).observe(planet)
-        alt, az, d = astrometric.apparent().altaz()
-        if (az > closest):
-            closest = az
-            closest_name = planet
-    result = f"{closest_name}"
-
-    return result
-
-if __name__ == '__main__':
-    planets = [
+    direction = float(request.args.get('direction'))
+    planets = load("de421.bsp")
+    planets_visible = [
         planets["venus"],
         planets["mars"],
         planets["jupiter BARYCENTER"],
@@ -71,5 +50,27 @@ if __name__ == '__main__':
         planets["uranus BARYCENTER"],
         planets["neptune BARYCENTER"],
     ]
+    ts = load.timescale()
+    t = ts.now()
+    
+    earth, mars = planets["earth"], planets["mars"]
+
+    astrometric = earth.at(t).observe(mars)
+    boston = earth + wgs84.latlon(longitude * N, latitude * W)
+
+    distance = sys.maxint
+    closest_name = None
+    for planet in planets_visible:
+        astrometric = boston.at(t).observe(planet)
+        alt, az, d = astrometric.apparent().altaz()
+        print(az.degrees)
+        if (az.degrees - direction < distance):
+            closest_name = planet
+    
+    result = f"{closest_name}"
+
+    return result
+
+if __name__ == '__main__':
     app.run(debug=True)
 
