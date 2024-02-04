@@ -3,24 +3,39 @@ import { use, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 export default function Home() {
   const handleConnection = async (e) => {
     // const res = axios.get("http://localhost:3000/api/arduino");
 
-    const data = new TextEncoder().encode("Hello" + "!"); // `!` is the delimiter
+    const data = new TextEncoder().encode("500,500");
+    console.log(data);
     const port = await navigator.serial.requestPort({
       filters: [{ usbVendorId: 0x2341 }],
     });
-
     console.log(port.getInfo());
-    await port.open({ baudRate: 9600 });
 
-    console.log(await port.getSignals());
-    await port.setSignals({ dataTerminalReady: true, requestTosSend: true });
+    try {
+      await port.open({ baudRate: 9600 });
+      console.log(await port.getSignals());
+      await port.setSignals({ dataTerminalReady: true, requestToSend: true });
 
-    const writer = port.writable.getWriter();
-    await writer.write(data);
-    writer.releaseLock();
+      const writer = port.writable.getWriter();
+      await writer.write(data);
+      writer.releaseLock();
+      console.log("Data written!");
+
+      await sleep(500);
+
+      // const reader = port.readable.getReader();
+      // const { value } = await reader.read();
+      // console.log(value);
+      // reader.releaseLock();
+      // console.log("Data read!");
+    } catch (e) {
+      console.error(e);
+    }
 
     await port.forget();
   };
