@@ -6,6 +6,7 @@ import * as Location from "expo-location";
 import { UsbSerial } from "react-native-usbserial";
 import {NavigationContainer} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import axios from 'axios';
 
 export default function App() {
   
@@ -16,43 +17,22 @@ export default function App() {
   const [lat, setLat] = useState(null);
   const [azimuth, setAzimuth] = useState(null);
   const [altitude, setAltitude] = useState(null);
-  const axios = require('axios');
 
   const getDirections = async (long, lat, planet) => {
-    console.log('checkpoint 1');
     console.log(long);
     console.log(lat);
     console.log(planet);
-
-    let config = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: 'http://server.milesacq.com:7892/calculate_distance?longitude=300&latitude=250&planet=sun',
-      headers: { }
-    };
-
-    console.log('config done');
     
-    axios.request(config)
-    .then((response) => {
-      console.log('req sent');
-      console.log(JSON.stringify(response.data));
-    })
-    .catch((error) => {
+    axios.get('http://server.milesacq.com:7892/calculate_distance', 
+      {longitude: long,
+      latitude: lat,
+      planet: planet}
+    ).then((response) => {
+      setAzimuth(response.data.Azimuth);
+      setAltitude(response.data.Altitude);
+    }, (error) => {
       console.log(error);
-    });
-    
-    // axios.get('http://server.milesacq.com:7892/calculate_distance', 
-    // {longitude: long,
-    //   latitude: lat,
-    //   planet: planet}).then((response) => {
-    //   console.log('checkpoint 2');
-    //   setAzimuth(response.data.Azimuth);
-    //   setAltitude(response.data.Altitude);
-    // }, (error) => {
-    //   console.log(error);
-    //   console.loc('checkpoint 3');
-    // })
+    })
   }
 
   const getPlanets = (long, lat, direction) => {
@@ -142,9 +122,9 @@ export default function App() {
   }
 
   function moveArm({navigation, planetName}) {
+    console.log(planetName);
     console.log('move arm');
     getDirections(long, lat, planetName).then(() => {
-      console.log('checkpoint 4');
       // work out number of 5.625° steps to take to point there
       if (altitude < 0 || altitude > 90) {
         console.log(planetName + "not visible");
@@ -166,7 +146,7 @@ export default function App() {
     return (
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
-        <Button title={"sun"} onPress={(title) => moveArm(navigation, title)}></Button>
+        <Button title={"sun"} onPress={(event) => moveArm(navigation, "mars")}></Button>
         <Button onPress={() => {navigation.goBack()}} title={"back"}></Button>
         
         {/* <SafeAreaView style={styles.container}>
