@@ -1,11 +1,18 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, View, Platform } from "react-native";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  DeviceEventEmitter,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import * as Location from "expo-location";
-import SerialPortAPI, { SerialPort } from "react-native-serial-port-api";
+import { RNSerialport, Definitions, Actions } from "react-native-serialport";
 
 export default function App() {
   const [usbConnected, setUsbConnected] = useState(false);
@@ -23,9 +30,19 @@ export default function App() {
     };
 
     watchLocation();
+
+    RNSerialport.setAutoConnectBaudRate(9600);
+    RNSerialport.setAutoConnect(true);
+    RNSerialport.startUsbService();
   }, []);
 
   function HomeScreen({ navigation }) {
+    useEffect(() => {
+      DeviceEventEmitter.addListener(
+        Actions.ON_CONNECTED,
+        setUsbConnected(true)
+      );
+    }, []);
     useEffect(() => {
       if (usbConnected) {
         navigation.navigate("Dock");
@@ -36,30 +53,19 @@ export default function App() {
       <View style={styles.container}>
         <Text>Compass heading: {Math.round(location?.trueHeading)}°</Text>
         <Text>Place phone in telescope dock!</Text>
-        <Button
-          onPress={async () => {
-            try {
-              serialPort = await SerialPortAPI.open("/dev/ttyS4", {
-                baudRate: 9600,
-              });
-              console.log("Connected to serial port");
-
-              serialPort.onReceived((buff) => {
-                console.log(buff.toString("hex").toUpperCase());
-              });
-              setUsbConnected(true);
-            } catch (e) {
-              console.error(e);
-            }
-          }}
-          title="Connect to telescope"
-        ></Button>
       </View>
     );
   }
 
   async function DockScreen({ navigation }) {
-    useState(() => {
+    useEffect(() => {
+      DeviceEventEmitter.addListener(
+        Actions.ON_DISCONNECTED,
+        setUsbConnected(false)
+      );
+
+      DeviceEventEmitter.addListener(Actions.ON_READ_DATA);
+
       const send = async (data) => {
         await serialPort.send(data);
       };
